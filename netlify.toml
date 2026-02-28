@@ -1,0 +1,43 @@
+[build]
+  publish = "."
+  functions = "netlify/functions"
+
+[[redirects]]
+  from = "/api/users"
+  to = "/.netlify/functions/users"
+  status = 200
+
+[[redirects]]
+  from = "/api/submit"
+  to = "/.netlify/functions/submit"
+  status = 200
+
+[[redirects]]
+  from = "/api/admin/ping"
+  to = "/.netlify/functions/admin-ping"
+  status = 200
+
+[[redirects]]
+  from = "/api/admin/users"
+  to = "/.netlify/functions/admin-users"
+  status = 200
+
+[[redirects]]
+  from = "/api/admin/user"
+  to = "/.netlify/functions/admin-user"
+  status = 200
+
+[[redirects]]
+  from = "/api/admin/stats"
+  to = "/.netlify/functions/admin-stats"
+  status = 200
+
+[[redirects]]
+  from = "/api/admin/report"
+  to = "/.netlify/functions/admin-report"
+  status = 200
+
+[[redirects]]
+  from = "/api/admin/reset-users"
+  to = "/.netlify/functions/admin-reset-users"
+  status = 200

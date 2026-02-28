@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Admin - Weekly Time Entry</title>
+  <link rel="stylesheet" href="assets/styles.css" />
+  <script defer src="https://cdn.jsdelivr.net/npm/xlsx@0.19.3/dist/xlsx.full.min.js"></script>
+  <script defer src="data/users.seed.js"></script>
+  <script defer src="assets/app.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <div class="logo">🛡</div>
+        <div>
+          <div class="brand-title">Admin Console</div>
+          <div class="brand-sub">Dashboard • reports • user management</div>
+        </div>
+      </div>
+      <nav class="nav">
+        <a class="navlink" href="index.html">Submit</a>
+        <a class="navlink active" href="admin.html">Admin</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="card">
+      <div class="card-head">
+        <h1>Admin Access</h1>
+        <p>Enter password to unlock reporting and user management.</p>
+      </div>
+
+      <div class="row" style="margin-top:12px;">
+        <div style="flex:1; min-width:240px;">
+          <label style="display:block; margin-bottom:7px; color:var(--muted); font-size:12px;">Admin Password</label>
+          <input id="adminPass" type="password" placeholder="Enter admin password" />
+        </div>
+        <div style="display:flex; gap:10px; align-items:end;">
+          <button class="btn" id="adminLoginBtn" type="button">Unlock</button>
+          <button class="btn ghost" id="adminLockBtn" type="button">Lock</button>
+          <button class="btn ghost" id="resetUsersBtn" type="button">Reset Users to Sample</button>
+        </div>
+      </div>
+
+      <div class="hint">Change the password in <span class="pill">assets/app.js</span>. If you don’t see sample users, your browser may already have a saved user list. Use <span class="pill">Reset Users to Sample</span>.</div>
+    </section>
+
+    <section class="card" id="adminPanel" style="display:none;">
+      <div class="card-head">
+        <h1>Dashboard</h1>
+        <p>Last week submission stats (based on user list and stored submissions).</p>
+      </div>
+
+      <div class="stats">
+        <div class="stat"><div class="stat-title">Total Users</div><div class="stat-val" id="statTotal">0</div></div>
+        <div class="stat"><div class="stat-title">Submitted</div><div class="stat-val" id="statSubmitted">0</div></div>
+        <div class="stat"><div class="stat-title">Not Submitted</div><div class="stat-val" id="statNotSubmitted">0</div></div>
+        <div class="stat"><div class="stat-title">Week</div><div class="stat-val" id="statWeek">—</div></div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="card-head">
+        <h2>Reports</h2>
+        <p>Filter week / team / resource and export. Includes submission status.</p>
+      </div>
+
+      <div class="grid">
+        <div class="field">
+          <label>Week (Monday start)</label>
+          <div class="row">
+            <button class="btn ghost" id="adminPrevWeekBtn" type="button">←</button>
+            <input id="adminWeekStart" type="date" />
+            <button class="btn ghost" id="adminNextWeekBtn" type="button">→</button>
+          </div>
+          <div class="hint" id="adminWeekHint"></div>
+        </div>
+
+        <div class="field">
+          <label>Team</label>
+          <select id="adminTeam">
+            <option value="">All Teams</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Resource</label>
+          <select id="adminResource">
+            <option value="">All Resources</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Actions</label>
+          <div class="row">
+            <button class="btn" id="runReportBtn" type="button">Run</button>
+            <button class="btn ghost" id="exportCsvBtn" type="button">Export CSV</button>
+          </div>
+          <div class="hint">Exports the current table (filtered).</div>
+        </div>
+      </div>
+
+      <div class="table-wrap" style="margin-top:12px;">
+        <table class="report" id="reportTable">
+          <thead>
+            <tr>
+              <th>WeekStart</th>
+              <th>EnterpriseID</th>
+              <th>Name</th>
+              <th>ShoreType</th>
+              <th>Team</th>
+              <th>Status</th>
+              <th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th><th>Sun</th>
+              <th>Proof</th>
+              <th>SubmittedAt</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="card-head">
+        <h2>User Management</h2>
+        <p>View / add / edit / delete users. Import Excel. Download updated Excel.</p>
+      </div>
+
+      <div class="row" style="margin-top:12px;">
+        <button class="btn" id="addUserBtn" type="button">Add User</button>
+        <button class="btn ghost" id="downloadUsersExcelBtn" type="button">Download Users Excel</button>
+        <label class="btn ghost" style="display:inline-flex; align-items:center; gap:8px; cursor:pointer;">
+          <input id="uploadUsersExcelAdmin" type="file" accept=".xlsx,.xls" style="display:none;" />
+          Upload Users Excel (replace)
+        </label>
+      </div>
+
+      <div class="table-wrap" style="margin-top:12px;">
+        <table class="users" id="usersTable">
+          <thead>
+            <tr>
+              <th>EnterpriseID</th>
+              <th>Name</th>
+              <th>ShoreType</th>
+              <th>TeamName</th>
+              <th style="width:190px;">Actions</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <div class="hint" style="margin-top:10px;">
+        Static note: browser cannot overwrite an Excel on disk automatically. Use “Download Users Excel” to save changes.
+      </div>
+    </section>
+
+    <div class="foot">All data stored locally in the browser (static app).</div>
+  </main>
+
+  <div class="modal" id="modal" aria-hidden="true">
+    <div class="modal-card">
+      <div class="modal-title" id="modalTitle">Info</div>
+      <div class="modal-body" id="modalBody"></div>
+      <div class="modal-actions">
+        <button class="btn" id="modalOk" type="button">OK</button>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

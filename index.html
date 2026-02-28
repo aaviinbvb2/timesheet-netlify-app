@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Weekly Time Entry</title>
+  <link rel="stylesheet" href="assets/styles.css" />
+  <!-- SheetJS for Excel import/export on Admin (CDN - no local dependencies) -->
+  <script defer src="https://cdn.jsdelivr.net/npm/xlsx@0.19.3/dist/xlsx.full.min.js"></script>
+  <script defer src="data/users.seed.js"></script>
+  <script defer src="assets/app.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <div class="logo">⏱</div>
+        <div>
+          <div class="brand-title">Weekly Time Entry</div>
+          <div class="brand-sub">Purple & white • elegant • Monday start</div>
+        </div>
+      </div>
+      <nav class="nav">
+        <a class="navlink active" href="index.html">Submit</a>
+        <a class="navlink" href="admin.html">Admin</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="card">
+      <div class="card-head">
+        <h1>Time Entry</h1>
+        <p>Choose week + Enterprise ID, fill hours (CTO + Project), attach proof, submit.</p>
+      </div>
+
+      <div class="grid">
+        <div class="field">
+          <label>Week (Monday start)</label>
+          <div class="row">
+            <button class="btn ghost" id="prevWeekBtn" type="button">←</button>
+            <input id="weekStart" type="date" />
+            <button class="btn ghost" id="nextWeekBtn" type="button">→</button>
+          </div>
+          <div class="hint" id="weekHint"></div>
+        </div>
+
+        <div class="field">
+          <label>Enterprise ID</label>
+          <select id="enterpriseId">
+            <option value="">Select</option>
+          </select>
+          <div class="hint">Users come from a pre-populated list (seed) or Admin-uploaded Excel.</div>
+        </div>
+
+        <div class="field">
+          <label>Name</label>
+          <div class="value" id="nameLabel">—</div>
+        </div>
+
+        <div class="field">
+          <label>Shore Type</label>
+          <div class="value" id="shoreLabel">—</div>
+        </div>
+
+        <div class="field">
+          <label>Team</label>
+          <div class="value" id="teamLabel">—</div>
+        </div>
+
+        <div class="field">
+          <label>Daily Required Total</label>
+          <div class="value" id="dailyLimitLabel">—</div>
+          <div class="hint">Offshore: 9 • Onshore/Nearshore: 8 (CTO + Project per day)</div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="table-wrap">
+        <table class="timesheet" id="timeTable">
+          <thead>
+            <tr>
+              <th>Category</th>
+              <th id="d0">Mon</th><th id="d1">Tue</th><th id="d2">Wed</th><th id="d3">Thu</th><th id="d4">Fri</th><th id="d5">Sat</th><th id="d6">Sun</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="rowhead">CTO</td>
+              <td><input class="h" type="text" inputmode="decimal" data-row="cto" data-day="0" placeholder="0" /></td>
+              <td><input class="h" type="text" inputmode="decimal" data-row="cto" data-day="1" placeholder="0" /></td>
+              <td><input class="h" type="text" inputmode="decimal" data-row="cto" data-day="2" placeholder="0" /></td>
+              <td><input class="h" type="text" inputmode="decimal" data-row="cto" data-day="3" placeholder="0" /></td>
+              <td><input class="h" type="text" inputmode="decimal" data-row="cto" data-day="4" placeholder="0" /></td>
+              <td><input class="h" type="text" inputmode="decimal" data-row="cto" data-day="5" placeholder="0" /></td>
+              <td><input class="h" type="text" inputmode="decimal" data-row="cto" data-day="6" placeholder="0" /></td>
+            </tr>
+            <tr>
+              <td class="rowhead">Project</td>
+              <td><input class="h" type="text" inputmode="decimal" data-row="project" data-day="0" placeholder="0" /></td>
+              <td><input class="h" type="text" inputmode="decimal" data-row="project" data-day="1" placeholder="0" /></td>
+              <td><input class="h" type="text" inputmode="decimal" data-row="project" data-day="2" placeholder="0" /></td>
+              <td><input class="h" type="text" inputmode="decimal" data-row="project" data-day="3" placeholder="0" /></td>
+              <td><input class="h" type="text" inputmode="decimal" data-row="project" data-day="4" placeholder="0" /></td>
+              <td><input class="h" type="text" inputmode="decimal" data-row="project" data-day="5" placeholder="0" /></td>
+              <td><input class="h" type="text" inputmode="decimal" data-row="project" data-day="6" placeholder="0" /></td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td class="rowhead">Daily Total</td>
+              <td class="tot" data-daytot="0">0</td>
+              <td class="tot" data-daytot="1">0</td>
+              <td class="tot" data-daytot="2">0</td>
+              <td class="tot" data-daytot="3">0</td>
+              <td class="tot" data-daytot="4">0</td>
+              <td class="tot" data-daytot="5">0</td>
+              <td class="tot" data-daytot="6">0</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="grid">
+        <div class="field">
+          <label>Upload Proof (jpg / jpeg / png / pdf / doc / docx)</label>
+          <input id="proofFile" type="file" />
+          <div class="hint" id="fileHint">Required.</div>
+        </div>
+
+        <div class="field">
+          <label>Status</label>
+          <div class="status" id="statusBox">
+            <span class="dot" id="statusDot"></span>
+            <span id="statusText">Waiting for inputs…</span>
+          </div>
+          <div class="hint" id="statusHint"></div>
+        </div>
+      </div>
+
+      <div class="row-right" style="margin-top:14px;">
+        <button class="btn ghost" id="resetBtn" type="button">Reset</button>
+        <button class="btn" id="submitBtn" type="button">Submit</button>
+      </div>
+    </section>
+
+    <div class="foot">Static storage: LocalStorage (records) + IndexedDB (proof files).</div>
+  </main>
+
+  <div class="modal" id="modal" aria-hidden="true">
+    <div class="modal-card">
+      <div class="modal-title" id="modalTitle">Info</div>
+      <div class="modal-body" id="modalBody"></div>
+      <div class="modal-actions">
+        <button class="btn" id="modalOk" type="button">OK</button>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
